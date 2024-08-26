@@ -1,58 +1,45 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:news_app_ui_setup/models/article_model.dart';
 import 'package:news_app_ui_setup/services/news_service.dart';
 import 'package:news_app_ui_setup/widgets/news_list_view.dart';
 
 class NewsListViewBuilder extends StatefulWidget {
-  const NewsListViewBuilder({
-    super.key,
-  });
-
+  const NewsListViewBuilder({super.key, required this.category});
+  final String category;
   @override
   State<NewsListViewBuilder> createState() => _NewsListViewBuilderState();
 }
 
 class _NewsListViewBuilderState extends State<NewsListViewBuilder> {
-  // bool isloading = true;
-  // List<ArticleModel> articles = [];
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   getGeneralNews();
-  // }
+  var future;
+  @override
+  void initState() {
+    super.initState();
+    // TODO: implement initState
 
-  // Future<void> getGeneralNews() async {
-  //   articles = await NewsService(Dio()).getNews();
-  //   setState(() {});
-  //   isloading = false;
-  // }
+    future = NewsService(Dio()).getNews(category: widget.category);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: NewsService(Dio()).getNews(),
+    return FutureBuilder<List<ArticleModel>>(
+      future: future,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
-        return NewsListView(
-          articles: snapshot.data ?? [],
-        );
+        if (snapshot.hasData) {
+          return NewsListView(
+            articles: snapshot.data,
+          );
+        } else if (snapshot.hasError) {
+          return SliverToBoxAdapter(
+            child: Text("oops there was an error"),
+          );
+        } else {
+          return const SliverToBoxAdapter(
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
       },
     );
-
-    // return isloading
-    //     ? const SliverToBoxAdapter(
-    //         child: Center(child: CircularProgressIndicator()))
-    //     : SliverList(
-    //         delegate: SliverChildBuilderDelegate(
-    //           childCount: articles.length,
-    //           (context, index) {
-    //             return Padding(
-    //               padding: const EdgeInsets.only(bottom: 22),
-    //               child: NewsTile(
-    //                 articleModel: articles[index],
-    //               ),
-    //             );
-    //           },
-    //         ),
-    //       );
   }
 }

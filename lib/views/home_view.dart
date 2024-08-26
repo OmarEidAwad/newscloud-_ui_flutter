@@ -43,7 +43,7 @@ class _HomeViewState extends State<HomeView> {
                   height: 30,
                 ),
               ),
-              NewsListViewBuilder(),
+              NewsListViewBuilder(category: "general"),
             ],
           ),
         ),
